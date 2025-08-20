@@ -1,6 +1,13 @@
 import gradio as gr
 import os
 from xai import Client
+from openai import OpenAI
+import os
+
+client = OpenAI(
+    api_key=os.getenv("GROK_API_KEY"),  # Explicitly set Grok key
+    base_url="https://api.x.ai/v1"
+)
 
 client = Client(api_key=os.environ.get("GROK_API_KEY"))
 
