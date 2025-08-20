@@ -1,15 +1,11 @@
 import gradio as gr
-import os
-from xai import Client
-from openai import OpenAI
+import google.generativeai as genai
 import os
 
-client = OpenAI(
-    api_key=os.getenv("GROK_API_KEY"),  # Explicitly set Grok key
-    base_url="https://api.x.ai/v1"
-)
+# Configure Gemini API
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-client = Client(api_key=os.environ.get("GROK_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Noddy's system identity
 NODDY_IDENTITY = (
@@ -19,23 +15,17 @@ NODDY_IDENTITY = (
 )
 
 def chat_with_noddy(message, history):
-    # Convert Gradio history to OpenAI-compatible format
-    messages = [{"role": "system", "content": NODDY_IDENTITY}]
-    for speaker, text in history:
-        if speaker == "user":
-            messages.append({"role": "user", "content": text})
-        else:
-            messages.append({"role": "assistant", "content": text})
-    messages.append({"role": "user", "content": message})
+    formatted_history = [
+        {"role": "user" if m[0] == "user" else "model", "parts": [m[1]]}
+        for m in history
+    ]
 
-    # Send request to Grok
-    response = client.chat.completions.create(
-        model="grok-beta",  # Grok model
-        messages=[
-            {"role": "user", "content": message}
-    )
+    if not formatted_history or formatted_history[0]["parts"][0] != NODDY_IDENTITY:
+        formatted_history.insert(0, {"role": "user", "parts": [NODDY_IDENTITY]})
 
-    return response.choices[0].message.content
+    chat = model.start_chat(history=formatted_history)
+    response = chat.send_message(message)
+    return response.text
 
 # 🎨 Custom CSS for Noddy’s softer chat bubbles
 custom_css = """
@@ -48,7 +38,7 @@ custom_css = """
 
 .chatbot .bot {
     background-color: #ffd6e7 !important;  /* soft light pink */
-    color: #000000 !important;             /* black text */
+    color: #660022 !important;             /* dark red text */
     border-radius: 16px 16px 16px 0px !important;
     padding: 10px;
 }
@@ -67,6 +57,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
             elem_classes=["chatbot"]
         ),
     )
-app = demo
-# Launch on Render
-#demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
+
+# Launch on Render's PORT (default 7860 for local)
+demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
