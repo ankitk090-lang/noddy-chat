@@ -27,17 +27,18 @@ def chat_with_noddy(message, history):
     response = chat.send_message(message)
     return response.text
 
-# 🎨 Custom CSS for Noddy’s red-themed chat bubbles
+# 🎨 Custom CSS for Noddy’s softer chat bubbles
 custom_css = """
 .chatbot .user {
-    background-color: #ffe0e0 !important;
-    color: #4a0000 !important;
+    background-color: #e6e6e6 !important;  /* light grey */
+    color: #000000 !important;             /* black text */
     border-radius: 16px 16px 0px 16px !important;
     padding: 10px;
 }
+
 .chatbot .bot {
-    background-color: #ff4d4d !important;
-    color: white !important;
+    background-color: #ffd6e7 !important;  /* soft light pink */
+    color: #660022 !important;             /* dark red text */
     border-radius: 16px 16px 16px 0px !important;
     padding: 10px;
 }
@@ -49,11 +50,10 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
         title="🤖 Noddy",
         description="Say hello to Noddy, your cheerful AI friend!",
         chatbot=gr.Chatbot(
-            avatar_images=("👤", "🎩"),  # 👤 User, 🎩 Noddy (hat icon like Noddy’s hat)
-            bubble_full_width=False,
+            avatar_images=(
+                "https://cdn-icons-png.flaticon.com/512/847/847969.png",   # user grey avatar
+                "https://cdn-icons-png.flaticon.com/512/616/616408.png",   # Noddy pink avatar
+            ),
             elem_classes=["chatbot"]
         ),
-    )
-
-if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
+    ), server_port=int(os.environ.get("PORT", 7860)))
