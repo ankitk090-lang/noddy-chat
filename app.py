@@ -38,7 +38,7 @@ custom_css = """
 
 .chatbot .bot {
     background-color: #ffd6e7 !important;  /* soft light pink */
-    color: #660022 !important;             /* dark red text */
+    color: #000000 !important;             /* dark red text */
     border-radius: 16px 16px 16px 0px !important;
     padding: 10px;
 }
