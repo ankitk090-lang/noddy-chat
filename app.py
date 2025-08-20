@@ -67,6 +67,6 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
             elem_classes=["chatbot"]
         ),
     )
-
+app = demo
 # Launch on Render
-demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
+#demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
