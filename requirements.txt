@@ -1,16 +1,2 @@
-# Core build tools (must come first)
-setuptools>=68.0.0
-wheel>=0.41.0
-pip>=25.1
-gunicorn
-
-# Gradio for UI
-gradio==4.44.0
-
-# OpenAI client (for Grok API as well)
-openai==1.40.6
-xai
-
-# General utilities
-requests>=2.32.0
-python-dotenv>=1.0.1
+gradio
+google-generativeai
