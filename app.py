@@ -1,9 +1,10 @@
-import os
 import gradio as gr
 import google.generativeai as genai
+import os
 
 # Configure Gemini API
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
 model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Noddy's system identity
@@ -14,14 +15,13 @@ NODDY_IDENTITY = (
 )
 
 def chat_with_noddy(message, history):
-    # Convert gradio history into Gemini format
-    formatted_history = [{"role": "user", "parts": [NODDY_IDENTITY]}]
+    formatted_history = [
+        {"role": "user" if m[0] == "user" else "model", "parts": [m[1]]}
+        for m in history
+    ]
 
-    for user_msg, bot_msg in history:
-        if user_msg:
-            formatted_history.append({"role": "user", "parts": [user_msg]})
-        if bot_msg:
-            formatted_history.append({"role": "model", "parts": [bot_msg]})
+    if not formatted_history or formatted_history[0]["parts"][0] != NODDY_IDENTITY:
+        formatted_history.insert(0, {"role": "user", "parts": [NODDY_IDENTITY]})
 
     chat = model.start_chat(history=formatted_history)
     response = chat.send_message(message)
@@ -50,17 +50,13 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
         title="🤖 Noddy",
         description="Say hello to Noddy, your cheerful AI friend!",
         chatbot=gr.Chatbot(
-            elem_classes=["chatbot"],
             avatar_images=(
-                "https://cdn-icons-png.flaticon.com/512/847/847969.png",  # user avatar
-                "https://cdn-icons-png.flaticon.com/512/616/616408.png",  # Noddy avatar
+                "https://cdn-icons-png.flaticon.com/512/847/847969.png",   # user grey avatar
+                "https://cdn-icons-png.flaticon.com/512/616/616408.png",   # Noddy pink avatar
             ),
+            elem_classes=["chatbot"]
         ),
     )
 
-# 🚀 Launch (Render compatible)
-if __name__ == "__main__":
-    demo.launch(
-        server_name="0.0.0.0",
-        server_port=int(os.environ.get("PORT", 7860))
-    )
+# Launch on Render's PORT (default 7860 for local)
+demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
