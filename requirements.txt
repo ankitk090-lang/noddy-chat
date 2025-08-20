@@ -1,2 +1,6 @@
+setuptools>=68.0
+wheel
+build
 gradio
+flask
 xai
