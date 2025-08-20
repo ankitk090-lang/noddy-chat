@@ -56,4 +56,4 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
             ),
             elem_classes=["chatbot"]
         ),
-    ), server_port=int(os.environ.get("PORT", 7860)))
+    ), server_port=int(os.environ.get("PORT", 7860))
