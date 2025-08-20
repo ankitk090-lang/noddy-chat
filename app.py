@@ -1,12 +1,8 @@
 import gradio as gr
 import os
-from openai import OpenAI
+from xai import Client
 
-# Configure Grok (xAI) API
-client = OpenAI(
-    api_key=os.getenv("GROK_API_KEY"),
-    base_url="https://api.x.ai/v1"  # Grok API base
-)
+client = Client(api_key=os.environ.get("GROK_API_KEY"))
 
 # Noddy's system identity
 NODDY_IDENTITY = (
@@ -28,7 +24,8 @@ def chat_with_noddy(message, history):
     # Send request to Grok
     response = client.chat.completions.create(
         model="grok-beta",  # Grok model
-        messages=messages
+        messages=[
+            {"role": "user", "content": message}
     )
 
     return response.choices[0].message.content
