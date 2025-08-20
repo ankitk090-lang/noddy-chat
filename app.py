@@ -1,11 +1,12 @@
 import gradio as gr
-import google.generativeai as genai
 import os
+from openai import OpenAI
 
-# Configure Gemini API
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+# Configure Grok (xAI) API
+client = OpenAI(
+    api_key=os.getenv("GROK_API_KEY"),
+    base_url="https://api.x.ai/v1"  # Grok API base
+)
 
 # Noddy's system identity
 NODDY_IDENTITY = (
@@ -15,17 +16,22 @@ NODDY_IDENTITY = (
 )
 
 def chat_with_noddy(message, history):
-    formatted_history = [
-        {"role": "user" if m[0] == "user" else "model", "parts": [m[1]]}
-        for m in history
-    ]
+    # Convert Gradio history to OpenAI-compatible format
+    messages = [{"role": "system", "content": NODDY_IDENTITY}]
+    for speaker, text in history:
+        if speaker == "user":
+            messages.append({"role": "user", "content": text})
+        else:
+            messages.append({"role": "assistant", "content": text})
+    messages.append({"role": "user", "content": message})
 
-    if not formatted_history or formatted_history[0]["parts"][0] != NODDY_IDENTITY:
-        formatted_history.insert(0, {"role": "user", "parts": [NODDY_IDENTITY]})
+    # Send request to Grok
+    response = client.chat.completions.create(
+        model="grok-beta",  # Grok model
+        messages=messages
+    )
 
-    chat = model.start_chat(history=formatted_history)
-    response = chat.send_message(message)
-    return response.text
+    return response.choices[0].message.content
 
 # 🎨 Custom CSS for Noddy’s softer chat bubbles
 custom_css = """
@@ -38,7 +44,7 @@ custom_css = """
 
 .chatbot .bot {
     background-color: #ffd6e7 !important;  /* soft light pink */
-    color: #000000 !important;             /* dark red text */
+    color: #000000 !important;             /* black text */
     border-radius: 16px 16px 16px 0px !important;
     padding: 10px;
 }
@@ -58,5 +64,5 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
         ),
     )
 
-# Launch on Render's PORT (default 7860 for local)
+# Launch on Render
 demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
