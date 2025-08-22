@@ -14,7 +14,16 @@ NODDY_IDENTITY = (
     "Your personality is cheerful, playful, and slightly mischievous like the cartoon Noddy."
 )
 
+# 🔢 Token counter
+TOKEN_LIMIT = 50
+used_tokens = 0
+
 def chat_with_noddy(message, history):
+    global used_tokens
+
+    if used_tokens >= TOKEN_LIMIT:
+        return "⚠️ Sorry, you've reached Noddy's daily 50-token limit. Please try again tomorrow!"
+
     formatted_history = [
         {"role": "user" if m[0] == "user" else "model", "parts": [m[1]]}
         for m in history
@@ -25,7 +34,12 @@ def chat_with_noddy(message, history):
 
     chat = model.start_chat(history=formatted_history)
     response = chat.send_message(message)
-    return response.text
+
+    # Count tokens (approximation: split by spaces → 1 token ≈ 1 word)
+    token_count = len(response.text.split())
+    used_tokens += token_count
+
+    return f"{response.text}\n\n🔢 Tokens used: {used_tokens}/{TOKEN_LIMIT}"
 
 # 🎨 Custom CSS for Noddy’s softer chat bubbles
 custom_css = """
